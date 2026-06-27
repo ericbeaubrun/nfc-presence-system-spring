@@ -1,8 +1,11 @@
 package com.ericbeaubrun.presencesys.infrastructure.persistence;
 
 import java.io.Serializable;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @EqualsAndHashCode
 public class AttendanceId implements Serializable {
     private String studentId;
