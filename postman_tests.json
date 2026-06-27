@@ -1,0 +1,202 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6",
+    "name": "Gestion des Présences NFC",
+    "description": "Collection de tests pour l'API REST de pointage et gestion des présences étudiantes via lecteurs NFC.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Cas Nominal - Pointage Réussi",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"readerId\": \"L0001\",\n    \"cardId\": \"2202100b\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/attendances",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "v1",
+            "attendances"
+          ]
+        },
+        "description": "Scénario idéal : L'étudiant Jean Dupont badge sa carte valide sur le lecteur associé à la salle où un cours a actuellement lieu. \n\nRéponse attendue : \n- HTTP Status: 200 OK\n- Corps : Présence enregistrée avec succès."
+      },
+      "response": []
+    },
+    {
+      "name": "2. Erreur - Étudiant déjà marqué Présent (Doublon)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"readerId\": \"L0001\",\n    \"cardId\": \"2202100b\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/attendances",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "v1",
+            "attendances"
+          ]
+        },
+        "description": "Scénario d'erreur : L'étudiant essaie de badger une seconde fois pour le même cours.\n\nRéponse attendue :\n- HTTP Status: 400 Bad Request\n- Corps : L'étudiant a déjà été enregistré pour ce cours."
+      },
+      "response": []
+    },
+    {
+      "name": "3. Erreur - Carte NFC Inconnue",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"readerId\": \"L0001\",\n    \"cardId\": \"99999999\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/attendances",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "v1",
+            "attendances"
+          ]
+        },
+        "description": "Scénario d'erreur : Une carte NFC non enregistrée dans le système est présentée au lecteur.\n\nRéponse attendue :\n- HTTP Status: 400 Bad Request\n- Corps : Aucun étudiant trouvé avec la carte NFC : 99999999"
+      },
+      "response": []
+    },
+    {
+      "name": "4. Erreur - Aucun cours en cours dans cette salle",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"readerId\": \"L0001\",\n    \"cardId\": \"2202100b\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/attendances",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "v1",
+            "attendances"
+          ]
+        },
+        "description": "Scénario d'erreur : À tester en dehors des heures définies dans ton jeu de données de test SQL (par exemple s'il est 15h00 alors que le cours s'arrête à 12h00).\n\nRéponse attendue :\n- HTTP Status: 400 Bad Request\n- Corps : Aucun cours actif n'est planifié pour cette salle actuellement."
+      },
+      "response": []
+    },
+    {
+      "name": "5. Validation - Format ID Lecteur Incorrect",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"readerId\": \"BAD_ID_TROP_LONG\",\n    \"cardId\": \"2202100b\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/attendances",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "v1",
+            "attendances"
+          ]
+        },
+        "description": "Scénario de validation DTO : Test des contraintes de taille avec Jakarta Validation (`@Size(min=5, max=5)`).\n\nRéponse attendue :\n- HTTP Status: 400 Bad Request\n- Corps : L'ID du lecteur doit faire exactement 5 caractères"
+      },
+      "response": []
+    },
+    {
+      "name": "6. Validation - Format ID Carte Incorrect",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"readerId\": \"L0001\",\n    \"cardId\": \"123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/attendances",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "v1",
+            "attendances"
+          ]
+        },
+        "description": "Scénario de validation DTO : Test de la contrainte `@Size(min=8, max=8)` sur le champ `cardId`.\n\nRéponse attendue :\n- HTTP Status: 400 Bad Request\n- Corps : L'ID de la carte doit faire exactement 8 caractères"
+      },
+      "response": []
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: presence-postgres
+    ports:
+      - "1234:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d presence_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - presence-network
+
+  app-server:
+    build: .
+    container_name: presence-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    networks:
+      - presence-network
+
+volumes:
+  postgres_data:
+
+networks:
+  presence-network:
+    driver: bridge
