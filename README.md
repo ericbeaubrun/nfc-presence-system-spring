@@ -1,9 +1,5 @@
 # Attendance Management and Verification System
 
-This repository contains a decoupled, containerized, and secure solution designed to automate and manage student attendance verification. The system features a modular backend server, a hardware scanning client, an asynchronous administration interface, and a dedicated testing suite.
-
----
-
 ## System Architecture
 
 The application consists of three main components:
